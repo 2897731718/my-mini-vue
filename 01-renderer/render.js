@@ -40,11 +40,11 @@ const mount = (vNode, container) => {
   // 树状结构
   // 
   if (vNode.children) {
-    // 如果是字符串
+    // 如果是字符串 直接挂载
     if (typeof vNode.children === 'string') {
       el.textContent = vNode.children
     } else {
-      // 如果是 一个新的节点
+      // 如果是数组 遍历后递归调用
       vNode.children.forEach(element => {
         mount(element, el)
       });
@@ -126,12 +126,18 @@ const patch = function (n1, n2) {
 
     // 边界判断
     if (typeof newChildren === 'string') {
+      /* 
+        + 因为新的为 string 
+          + 不管如何都是直接覆盖的
+          + 旧的为 string 只需要使用 textContent 修改内容
+          + 旧的为 array 就要使用 innerHTML 添加
+      */
       // 情况一: 如果新的是 string 旧的也是 string
       if (typeof oldChildren === 'string') {
         if (newChildren !== oldChildren) {
           el.textContent = newChildren
         }
-      } else { // 旧的不是 string 直接覆盖
+      } else {
         el.innerHTML = newChildren
       }
     } else { 
