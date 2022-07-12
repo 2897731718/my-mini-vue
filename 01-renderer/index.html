@@ -10,14 +10,34 @@
   <div id="app"></div>
   <script src="./render.js"></script>
   <script>
-    // 通过 h 函数可以创建一个 vNode
-    const vNode = h('div', { class: 'pop'}, [
-      h('h2', null, '当前计数'),
-      h('button', null, '+1')
+    // 1.通过 h 函数可以创建一个 vNode
+    const vNodeOld = h('div', { class: 'pop'}, [
+      h('h2', null, '当前计数: 100'),
+      h('button', { onClick: function one() {
+        console.log('+1')
+      } }, '+1')
     ])
-    console.log(vNode)
-    // 通过 mount 函数 将 vNode 挂载到 div 的 app 上
-    mount(vNode, document.querySelector('#app'))
+    // console.log(vNode)
+
+    // 2.通过 mount 函数 将 vNode 挂载到 div 的 app 上
+    mount(vNodeOld, document.querySelector('#app'))
+
+    // 3.创建一个新的 vNode 用于 diff 算法
+    // const vNodeNew = h('div', { class: 'show-go' }, 'np')
+    // setTimeout(() => {
+    //   patch(vNodeOld, vNodeNew)
+    // }, 2000)
+    const vNodeTest = h('div', { class: 'show-go'}, [
+      h('h1', null, '当前计数: 200'),
+      h('button', { onClick: function two() {
+        console.log('+2')
+      } }, '+2'),
+      
+    ])
+    setTimeout(() => {
+      patch(vNodeOld, vNodeTest)
+    }, 2000)
+    // console.log(document.querySelector('button'))
   </script>
 </body>
 </html>
