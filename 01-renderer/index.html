@@ -7,7 +7,7 @@
   <title>渲染器实现</title>
 </head>
 <body>
-  <div id="dpp"></div>
+  <div id="app"></div>
   <script src="./render.js"></script>
   <script>
     // 通过 h 函数可以创建一个 vNode
@@ -16,6 +16,8 @@
       h('button', null, '+1')
     ])
     console.log(vNode)
+    // 通过 mount 函数 将 vNode 挂载到 div 的 app 上
+    mount(vNode, document.querySelector('#app'))
   </script>
 </body>
 </html>
