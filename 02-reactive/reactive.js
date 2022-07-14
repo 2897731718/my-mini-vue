@@ -61,23 +61,107 @@ let activeEffect = null
 function watchEffect(effect) {
   activeEffect = effect
   // 调用函数 自动收集
-  dep.depend()
+  // dep.depend()
   // effect 默认执行一次
   effect()
   activeEffect = null
 }
 
-const info = { counter: 100 }
+/* 
++ 因为要对每一个值都收集依赖 
+  + 这里使用 weakMap 弱引用
+  + map 里面存的是 监听的 对象
+    + 
++ 定义一个 get 
+*/
+const targetMap = new WeakMap()
+/* 
+weakMap
+target: {
+  depsMap
+  'objName' => {
+    keyName => dep(),
+    keyName => dep(),
+    }
+  }
+}
+*/
+function getDep(target, key) {
+  // 1.根据监听的对象 取出对应的 map 如果没有就添加
+  let depsMap = targetMap.get(target)
+  if (!depsMap) {
+    depsMap = new Map()
+    targetMap.set(target, depsMap)
+  }
+  // 2. map 里面存的是 根据属性名生成的 dep 实例
+  let dep = depsMap.get(key)
+  if (!dep) {
+    dep = new Dep()
+    depsMap.set(key, dep)
+  }
+  return dep
+}
+
+// 数据劫持 
+// vue2 对 raw 进行数据劫持
+function reactive(raw) {
+/* 
++ 数据劫持主要是为了 收集依赖
+  + 对 raw 里面的每一个 key 进行监听
++ Object.defineProperties
+  + 获取数据的时候 调用 get
+  + 设置数据的时候 调用 set
++ 执行流程
+  + watchEffect 监听到后 会默认执行一次副作用函数 effect
+  + effect 执行后会 获取值进行操作 就会调用 get 方法
+  + 执行 dep.depend() 后 
+  + 会将当前的函数 添加进 set 中
+*/
+  Object.keys(raw).forEach(key => {
+
+    const dep = getDep(raw, key)
+    let value = raw[key]
+    // 传入 raw 对象 key 键
+    Object.defineProperty(raw, key, {
+      get() {
+        console.log('第一次收集依赖', key)
+        dep.depend()
+        return value
+      },
+      set(newValue) {
+        console.log(dep)
+        if (newValue !== value) {
+          // 因为引用赋值
+          value = newValue
+          // 变量修改 执行副作用函数
+          dep.notify()
+        }
+      }
+    })
+  })
+  
+  return raw
+}
+
+
+// 测试代码
+const info = { counter: 100, name: 'pop' }
+reactive(info)
 
 const dep = new Dep()
 
 watchEffect(() => {
-  console.log(info.counter * 2)
+  console.log('watchEffect1', info.counter * 2)
 })
 
 watchEffect(() => {
-  console.log(info.counter * info.counter)
+  console.log('watchEffect2', info.counter * info.counter)
 })
 
-info.counter++
-dep.notify()
+watchEffect(() => {
+  console.log('watchEffect3', info.name)
+})
+
+// info.counter++
+// info.name = 'show-go'
+// dep.notify()
