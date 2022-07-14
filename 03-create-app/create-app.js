@@ -5,9 +5,13 @@
 + 所以传入一个根组件 然后一定会返回一个挂载函数
 + 
 */
-
+console.log(mount)
 function createApp(rootComponent) {
   return {
+    /* 
+    + 几个 script 是共享的
+    + 这里 mount 是函数的重载
+    */
     // 传入选择器
     mount(selector) {
       // 根据选择器获取真实 DOM
@@ -15,7 +19,6 @@ function createApp(rootComponent) {
       /* 
       + 第一次进入页面的时候 是对跟组件进行挂载
       + 第二次进入的时候就只需要刷新 那么应该做 patch 操作
-      + 
       */
       let isMounted = false
       let oldVNode = null
@@ -28,6 +31,7 @@ function createApp(rootComponent) {
           mount(oldVNode, container)
           isMounted = true
         } else {
+          // 新旧 patch 更新旧的 vNode
           const newVNode = rootComponent.render()
           patch(oldVNode, newVNode)
           oldVNode = newVNode
