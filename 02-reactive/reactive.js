@@ -173,22 +173,22 @@ function reactive(raw) {
 
 
 // 测试代码
-const info = reactive({ counter: 100, name: 'pop' })
+// const info = reactive({ counter: 100, name: 'pop' })
 
-const dep = new Dep()
+// const dep = new Dep()
 
-watchEffect(() => {
-  console.log('watchEffect1', info.counter * 2)
-})
+// watchEffect(() => {
+//   console.log('watchEffect1', info.counter * 2)
+// })
 
-watchEffect(() => {
-  console.log('watchEffect2', info.counter * info.counter)
-})
+// watchEffect(() => {
+//   console.log('watchEffect2', info.counter * info.counter)
+// })
 
-watchEffect(() => {
-  console.log('watchEffect3', info.name)
-})
+// watchEffect(() => {
+//   console.log('watchEffect3', info.name)
+// })
 
-info.counter++
-info.name = 'show-go'
+// info.counter++
+// info.name = 'show-go'
 // dep.notify()

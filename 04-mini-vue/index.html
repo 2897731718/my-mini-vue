@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../01-renderer/render.js"></script>
+    <script src="../02-reactive/reactive.js"></script>
+    <script src="../03-create-app/create-app.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+  <script>
+    // 1.创建根组件
+    const App = {
+      data: reactive({
+        counter: 0
+      }),
+      render() {
+        return h('div', null, [
+          h('h2', null, `数值: ${this.data.counter}`),
+          h('button', {
+            onClick: () => {
+              this.data.counter++
+            }
+          }, '+1')
+        ])
+      }
+    }
+
+    // 2.挂载根组件
+    const app = createApp(App)
+    app.mount('#app')
+
+  </script>
+</html>

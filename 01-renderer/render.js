@@ -99,6 +99,9 @@ const patch = function (n1, n2) {
       const newValue = newProps[key]
       // 新旧进行对比 
       if (newValue !== oldValue) {
+        /*
+        + 这里没法判断新旧事件是否相同 每次都会添加一个新的事件
+        */
         if (key.startsWith('on')) { 
           el.addEventListener(key.slice(2).toLowerCase(), newValue)
         } else {
