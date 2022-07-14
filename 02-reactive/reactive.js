@@ -56,6 +56,10 @@ class Dep {
   + 调用 dep.depend() 里面会判断 effect 是否有值
   + 有值就添加进去 就不需要知道 effect 是什么了 只要不为 null 就添加
   + 最后重新把 activeEffect 赋值为 null 用于下一轮收集
++ 就不需要传递每一个 effect 函数才能添加
++ watchEffect 监听到就会自动添加
+  + 这个函数实际实现就是会自动收集依赖的
+  + 这里是手动传进去的
 */
 let activeEffect = null
 function watchEffect(effect) {
