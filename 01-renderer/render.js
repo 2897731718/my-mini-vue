@@ -100,9 +100,12 @@ const patch = function (n1, n2) {
       // 新旧进行对比 
       if (newValue !== oldValue) {
         /*
-        + 这里没法判断新旧事件是否相同 每次都会添加一个新的事件
+        + 因为点击事件是一个函数 存的不同的引用地址 所以一定不同
+        + 那么每次都会添加一个新的
+        + 所以这里直接每次删除旧的 在添加新的解决
         */
         if (key.startsWith('on')) { 
+          el.removeEventListener(key.slice(2).toLowerCase(), oldValue)
           el.addEventListener(key.slice(2).toLowerCase(), newValue)
         } else {
           // key: newValue => class: show-go
