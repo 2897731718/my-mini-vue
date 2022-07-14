@@ -77,7 +77,7 @@ function watchEffect(effect) {
 const targetMap = new WeakMap()
 /* 
 weakMap
-target: {
+target: { // 整个对象
   depsMap
   'objName' => {
     keyName => dep(),
@@ -94,7 +94,7 @@ function getDep(target, key) {
     targetMap.set(target, depsMap)
   }
   // 2. map 里面存的是 根据属性名生成的 dep 实例
-  let dep = depsMap.get(key)
+  let dep = depsMap.get(key) // 根据对象中 每个元素的键生成
   if (!dep) {
     dep = new Dep()
     depsMap.set(key, dep)
@@ -104,49 +104,72 @@ function getDep(target, key) {
 
 // 数据劫持 
 // vue2 对 raw 进行数据劫持
-function reactive(raw) {
-/* 
-+ 数据劫持主要是为了 收集依赖
-  + 对 raw 里面的每一个 key 进行监听
-+ Object.defineProperties
-  + 获取数据的时候 调用 get
-  + 设置数据的时候 调用 set
-+ 执行流程
-  + watchEffect 监听到后 会默认执行一次副作用函数 effect
-  + effect 执行后会 获取值进行操作 就会调用 get 方法
-  + 执行 dep.depend() 后 
-  + 会将当前的函数 添加进 set 中
-*/
-  Object.keys(raw).forEach(key => {
+// function reactive(raw) {
+// /* 
+// + 数据劫持主要是为了 收集依赖
+//   + 对 raw 里面的每一个 key 进行监听
+// + Object.defineProperties
+//   + 获取数据的时候 调用 get
+//   + 设置数据的时候 调用 set
+// + 执行流程
+//   + watchEffect 监听到后 会默认执行一次副作用函数 effect
+//   + effect 执行后会 获取值进行操作 就会调用 get 方法
+//   + 执行 dep.depend() 后 
+//   + 会将当前的函数 添加进 set 中
+// */
+//   Object.keys(raw).forEach(key => {
 
-    const dep = getDep(raw, key)
-    let value = raw[key]
-    // 传入 raw 对象 key 键
-    Object.defineProperty(raw, key, {
-      get() {
-        console.log('第一次收集依赖', key)
-        dep.depend()
-        return value
-      },
-      set(newValue) {
-        console.log(dep)
-        if (newValue !== value) {
-          // 因为引用赋值
-          value = newValue
-          // 变量修改 执行副作用函数
-          dep.notify()
-        }
-      }
-    })
-  })
+//     const dep = getDep(raw, key)
+//     let value = raw[key]
+//     // 传入 raw 对象 key 键
+//     Object.defineProperty(raw, key, {
+//       get() {
+//         console.log('第一次收集依赖', key)
+//         dep.depend()
+//         return value
+//       },
+//       set(newValue) {
+//         console.log(dep)
+//         if (newValue !== value) {
+//           // 因为引用赋值
+//           value = newValue
+//           // 变量修改 执行副作用函数
+//           dep.notify()
+//         }
+//       }
+//     })
+//   })
   
-  return raw
+//   return raw
+// }
+
+/* 
++ 2 3 比较
+  + 2 要观测新增对象需要 再次调用 Object.defineProperty
+  + 3 劫持的是整个对象 返回的是一个新的 Proxy()
+
+*/
+
+// vue3
+function reactive(raw) {
+  return new Proxy(raw, {
+    // target 对象 key 对象种每个键
+    get(target, key) {
+      const dep = getDep(target, key)
+      dep.depend()
+      return target[key]
+    },
+    set(target, key, newValue) {
+      const dep = getDep(target, key)
+      target[key] = newValue
+      dep.notify()
+    }
+  })
 }
 
 
 // 测试代码
-const info = { counter: 100, name: 'pop' }
-reactive(info)
+const info = reactive({ counter: 100, name: 'pop' })
 
 const dep = new Dep()
 
@@ -162,6 +185,6 @@ watchEffect(() => {
   console.log('watchEffect3', info.name)
 })
 
-// info.counter++
-// info.name = 'show-go'
+info.counter++
+info.name = 'show-go'
 // dep.notify()
